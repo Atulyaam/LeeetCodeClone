@@ -7,6 +7,7 @@ const signupSchema = z.object({
   password: z.string().min(8, "Password should contain at least 8 characters"),
 });
 
+
 export default function Login() {
   const {
     register,
@@ -17,6 +18,7 @@ export default function Login() {
   const submittedData = (data) => {
     console.log(data);
   };
+// Login code is similar to Sign up just removed name
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4">

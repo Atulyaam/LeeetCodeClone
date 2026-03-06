@@ -11,14 +11,16 @@ const signupSchema = z.object({
 export default function Signup() {
   const {
     register,
+
     handleSubmit,
+
     formState: { errors },
   } = useForm({ resolver: zodResolver(signupSchema) });
 
   const submittedData = (data) => {
     console.log(data);
   };
-
+// this is the code for Signup 
   return (
     <div className="min-h-screen flex items-center justify-center p-4">
       <div className="card w-90 bg-base-100 shadow-xl">
