@@ -27,8 +27,6 @@ export default function Login() {
           <h2 className="card-title justify-center text-3xl">Leetcode Login</h2>
 
           <form onSubmit={handleSubmit(submittedData)}>
-
-
             <div className="form-control mt-4">
               <label className="label mb-1">
                 <span className="label-text">Email</span>

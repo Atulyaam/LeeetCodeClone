@@ -19,9 +19,18 @@ const register = async (req,res)=>{
       req.body.password = await bcrypt.hash(password,10)
       const user = await User.create(req.body)
         // after rigster user directolly directed to web page no need to relogin
+
+      const reply = {
+         firstName:user.firstName,
+         emailId: user.emailId,
+         _id:user._id
+      }
       const token =  jwt.sign({_id:user._id,emailId:emailId,role:'user'},process.env.JWT_KEY,{expiresIn:60*60})
       res.cookie('token',token,{maxAge:60*60*1000})
-      res.status(201).send("User Registerd Succsessfully")
+      res.status(201).json({
+         user:reply,
+         message:"User Registerd Succsessfully"
+      })
 
       
 
@@ -44,10 +53,19 @@ const login = async (req,res)=>{
       if(!check){
          throw new Error("Invalid Credentials")
       }
+
+      const reply = {
+         firstName:user.firstName,
+         emailId: user.emailId,
+         _id:user._id
+      }
       const token = jwt.sign({_id:user._id,emailId:user.emailId,role:user.role} ,process.env.JWT_KEY,{expiresIn:60*60})
 
       res.cookie('token',token,{maxAge:60*60*1000})
-      res.status(200).send("Logged in Succsessfully")
+      res.status(200).json({
+         user:reply,
+         message:"Loggin Succsessfully"
+      })
       
       
    } catch (error) {

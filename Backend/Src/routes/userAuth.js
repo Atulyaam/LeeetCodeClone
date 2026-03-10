@@ -23,6 +23,22 @@ authRouter.post("/admin/register",adminMiddleware,adminRegister);
 // deleting the user
 authRouter.delete("/deleteProfile",userMiddleware,deleteProfile)
 
+
+// this automatically get login user if he/she visit page and already login previsiouly
+// it is store forr registerd user
+
+authRouter.get('/check',userMiddleware,(req,res)=>{
+   const reply = {
+      firstName: req.result.firstName,
+      emailId: req.result.emailId,
+      _id: req.result._id
+   }
+   res.status(200).json({
+      user:reply,
+      message:"Valid user"
+   })
+})
+
 module.exports=authRouter;
 
 // ye jo functions hai ider isno hum controllers me banayege functions
