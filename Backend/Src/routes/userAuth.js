@@ -29,9 +29,9 @@ authRouter.delete("/deleteProfile",userMiddleware,deleteProfile)
 
 authRouter.get('/check',userMiddleware,(req,res)=>{
    const reply = {
-      firstName: req.result.firstName,
-      emailId: req.result.emailId,
-      _id: req.result._id
+      firstName: req.user.firstName,
+      emailId: req.user.emailId,
+      _id: req.user._id
    }
    res.status(200).json({
       user:reply,

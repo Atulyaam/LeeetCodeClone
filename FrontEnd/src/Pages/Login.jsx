@@ -1,6 +1,10 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+import { useDispatch, useSelector } from "react-redux";
+import { useNavigate } from "react-router";
+import { useEffect } from "react";
+import { loginUser } from "../authSlice";
 
 const signupSchema = z.object({
   emailId: z.string().email("Please enter a valid email"),
@@ -9,14 +13,24 @@ const signupSchema = z.object({
 
 
 export default function Login() {
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const {isAuthenticated, loading, error}=useSelector((state)=>{
+    return state.auth
+  })
   const {
     register,
     handleSubmit,
     formState: { errors },
   } = useForm({ resolver: zodResolver(signupSchema) });
+  useEffect(()=>{
+    if(isAuthenticated){
+      navigate('/')
+    }
+  },[isAuthenticated,navigate])
 
   const submittedData = (data) => {
-    console.log(data);
+    dispatch(loginUser(data))
   };
 // Login code is similar to Sign up just removed name
 

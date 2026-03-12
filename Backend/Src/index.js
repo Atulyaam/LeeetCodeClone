@@ -7,8 +7,13 @@ const authRouter = require("./routes/userAuth")
 const redisClient = require("./config/redis")
 const problemRouter = require("./routes/problemCreator")
 const submitRouter = require("./routes/submit")
+const cors = require('cors')
 
 // ye direct jo JSON formate me data aata hai usko java script object me convert ker degaa
+app.use(cors({
+  origin:'http://localhost:5173',
+  credentials:true
+}))
 
 app.use(express.json())
 app.use(cookieParser());
