@@ -3,7 +3,10 @@ import { createAsyncThunk,createSlice } from '@reduxjs/toolkit'
 import axiosClient from './utils/axiosClient'
 
 const toErrorPayload = (error) => ({
-   message: error?.response?.data?.message || error?.message || 'Request failed',
+   message:
+      (typeof error?.response?.data === 'string' ? error.response.data : error?.response?.data?.message) ||
+      error?.message ||
+      'Request failed',
    status: error?.response?.status ?? null,
 });
 
@@ -69,7 +72,8 @@ const authSlice = createSlice({
    initialState:{
       user:null,
       isAuthenticated:false,
-      loading:false,
+      // Start in loading state so route guards wait for checkAuth on first app mount.
+      loading:true,
       error:null
       
    },
@@ -135,7 +139,7 @@ const authSlice = createSlice({
 
       // Addimg case for logout
       .addCase(logoutUser.pending,(state)=>{
-         state.loading = false;
+         state.loading = true;
          state.error = null;
       })
 

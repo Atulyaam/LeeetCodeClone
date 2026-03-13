@@ -2,11 +2,11 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useDispatch, useSelector } from "react-redux";
-import { useNavigate } from "react-router";
+import { NavLink, useNavigate } from "react-router-dom";
 import { useEffect } from "react";
 import { loginUser } from "../authSlice";
 
-const signupSchema = z.object({
+const loginSchema = z.object({
   emailId: z.string().email("Please enter a valid email"),
   password: z.string().min(8, "Password should contain at least 8 characters"),
 });
@@ -22,7 +22,7 @@ export default function Login() {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm({ resolver: zodResolver(signupSchema) });
+  } = useForm({ resolver: zodResolver(loginSchema) });
   useEffect(()=>{
     if(isAuthenticated){
       navigate('/')
@@ -68,10 +68,21 @@ export default function Login() {
             </div>
 
             <div className="form-control mt-4">
-              <button type="submit" className="btn btn-primary w-full">
-                Login
+              <button
+                type="submit"
+                className={`btn btn-primary w-full ${loading ? "loading" : ""}`}
+                disabled={loading}
+              >
+                {loading ? "Logging in" : "Login"}
               </button>
             </div>
+            {error && (
+              <div className="alert alert-error mt-4 text-sm">{error}</div>
+            )}
+            <p className="text-center mt-4 text-sm">
+              Don't have an account?{" "}
+              <NavLink to="/signup" className="link link-primary">Signup</NavLink>
+            </p>
           </form>
         </div>
       </div>

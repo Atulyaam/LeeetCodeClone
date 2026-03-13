@@ -2,9 +2,9 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useDispatch, useSelector } from "react-redux";
-import { useNavigate } from "react-router";
+import { NavLink, useNavigate } from "react-router-dom";
 import { registerUser } from "../authSlice";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 const signupSchema = z.object({
   firstName: z.string().min(3, "Name should contain at least 3 characters"),
@@ -13,6 +13,7 @@ const signupSchema = z.object({
 });
 
 export default function Signup() {
+  const [showPassword,setShowPassword] = useState(false)
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const {
@@ -74,20 +75,42 @@ export default function Signup() {
               <label className="label mb-1">
                 <span className="label-text">Password</span>
               </label>
+              <div className="relative">
               <input
-                type="password"
+                type={showPassword ? "text" : "password"}
                 placeholder="Enter your password"
                 className={`input input-bordered ${errors.password ? "input-error" : ""}`}
                 {...register("password")}
               />
+              <button
+                type="button"
+                className="btn btn-ghost btn-xs absolute right-2 top-1/2 -translate-y-1/2"
+                onClick={()=>setShowPassword((prev)=>!prev)}
+              >
+                {showPassword ? "Hide" : "Show"}
+              </button>
+              </div>
+              
               {errors.password && <span className="text-error">{errors.password.message}</span>}
             </div>
 
             <div className="form-control mt-4">
-              <button type="submit" className="btn btn-primary w-full">
-                Submit
+              <button type="submit"
+              className={
+                `btn btn-primary w-full ${loading?'loading':''}`
+              }
+              disabled={loading}
+               >
+                {loading ? 'Creating account' : 'Submit'}
               </button>
             </div>
+            {error && (
+              <div className="alert alert-error mt-4 text-sm">{error}</div>
+            )}
+            <p className="text-center mt-4 text-sm">
+              Already have an account?{" "}
+              <NavLink to="/login" className="link link-primary">Login</NavLink>
+            </p>
           </form>
         </div>
       </div>
