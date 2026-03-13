@@ -3,6 +3,13 @@ import { logoutUser } from "../authSlice"
 import { useEffect, useState } from "react";
 import axiosClient from "../utils/axiosClient";
 import { NavLink } from "react-router-dom";
+
+const getProblemId = (item) => {
+   if (!item) return "";
+   if (typeof item === "string" || typeof item === "number") return String(item);
+   const rawId = item._id || item.id || item.problemId?._id || item.problemId || item.problem?._id || item.problem;
+   return rawId ? String(rawId) : "";
+};
  
 function HomePage(){
    const dispatch = useDispatch();
@@ -31,17 +38,15 @@ function HomePage(){
          try {
             const {data} = await axiosClient.get('/problem/ProblemSolvedByUser');
             setSolvedProblem(Array.isArray(data) ? data : []);
-         } catch (error) {
+         } catch (err) {
+            console.error('fetchSolvedProblem failed:', err);
             setSolvedProblem([]);
          }
       }
 
       const initialize = async () => {
          setIsLoading(true);
-         await fetchProblems();
-         if(user) {
-            await fetchSolvedProblem();
-         }
+         await Promise.all([fetchProblems(), fetchSolvedProblem()]);
          setIsLoading(false);
       };
 
@@ -54,26 +59,27 @@ function HomePage(){
       setSolvedProblem([]);
    };
 
-   const solvedProblemIds = new Set(solvedProblem.map((item)=>item._id));
+   const solvedProblemIds = new Set(
+      solvedProblem
+         .map((item)=>getProblemId(item))
+         .filter(Boolean)
+   );
 
    const filterProblems = problem.filter(problem=>{
       const difficultyMatch = filters.difficulty==='all'||problem.difficulty===filters.difficulty;
 
       const tagMatch = filters.tag==='all' || problem.tags === filters.tag;
-      const statusMatch = filters.status==="all" || solvedProblemIds.has(problem._id)
+      const statusMatch = filters.status==="all" || solvedProblemIds.has(getProblemId(problem))
 
       return difficultyMatch && tagMatch && statusMatch
    })
-
-   
-   
 
    return(
       <div className="min-h-screen bg-base-200">
          {/* Nav Bar */}
          <nav className="navbar bg-base-100 shadow-lg px-4">
             <div className="flex-1">
-               <NavLink to="/" className="btn btn-ghost text-xl">LeetCode</NavLink>
+               <NavLink to="/" className="btn btn-ghost text-xl">DupliCode</NavLink>
             </div>
             <div className="flex-none gap-4">
                <div className="dropdown dropdown-end">
@@ -154,7 +160,7 @@ function HomePage(){
                )}
                {
                   filterProblems.map(problem=>{
-                     const isSolved = solvedProblemIds.has(problem._id);
+                     const isSolved = solvedProblemIds.has(getProblemId(problem));
                      return (
                         <div key={problem._id} className="card bg-base-100 shadow">
                            <div className="card-body">

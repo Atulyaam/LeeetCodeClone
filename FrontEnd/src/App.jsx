@@ -30,8 +30,14 @@ export default function App(){
     <Routes>
       <Route path="/" element={isAuthenticated ?<HomePage></HomePage>:<Navigate to="/login"></Navigate>}>
       </Route>
+
+
       <Route path="/login" element={isAuthenticated?<Navigate to="/"></Navigate>:<Login></Login>}></Route>
+
+
       <Route path="/signup" element={isAuthenticated ? <Navigate to="/"></Navigate>:<Signup></Signup>}></Route>
+
+
       <Route
       path="/admin"
       element={
@@ -43,9 +49,12 @@ export default function App(){
       }
       >
       </Route>
+
+
       <Route path="/problem/:problemId" element={
         isAuthenticated ? <ProblemPage></ProblemPage> : <Navigate to="/login"></Navigate>
       }>
+        
 
       </Route>
       <Route path="*" element={<Navigate to="/"></Navigate>}></Route>

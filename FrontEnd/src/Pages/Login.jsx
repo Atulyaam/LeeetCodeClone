@@ -38,7 +38,7 @@ export default function Login() {
     <div className="min-h-screen flex items-center justify-center p-4">
       <div className="card w-90 bg-base-100 shadow-xl">
         <div className="card-body">
-          <h2 className="card-title justify-center text-3xl">Leetcode Login</h2>
+          <h2 className="card-title justify-center text-3xl">DupliCode Login</h2>
 
           <form onSubmit={handleSubmit(submittedData)}>
             <div className="form-control mt-4">

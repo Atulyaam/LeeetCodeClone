@@ -214,7 +214,7 @@ const solvedProblembyUser = async (req,res)=>{
 
 const submittedProblem  =async(req,res)=>{
    try {
-      const userId = req.result._id
+      const userId = (req.user && req.user._id) || (req.result && req.result._id)
       const problemId = req.params.pid 
       const ans = await  ProblemSubmission.find({userId,problemId})
 

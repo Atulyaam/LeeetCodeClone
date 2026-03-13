@@ -132,7 +132,7 @@ const adminRegister = async (req,res)=>{
 
 const deleteProfile = async (req,res)=>{
    try {
-      const userId = req.result._id
+      const userId = (req.user && req.user._id) || (req.result && req.result._id)
       // user schema deleted
       await User.findByIdAndDelete(userId)
 
