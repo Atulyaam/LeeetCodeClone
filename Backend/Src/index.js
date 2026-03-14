@@ -7,6 +7,7 @@ const authRouter = require("./routes/userAuth")
 const redisClient = require("./config/redis")
 const problemRouter = require("./routes/problemCreator")
 const submitRouter = require("./routes/submit")
+const videoRouter = require("./routes/videoCreator")
 const cors = require('cors')
 
 // ye direct jo JSON formate me data aata hai usko java script object me convert ker degaa
@@ -23,6 +24,7 @@ app.use('/problem',problemRouter)
 // support legacy/plural path
 app.use('/problems', problemRouter)
 app.use('/submission',submitRouter)
+app.use('/video',videoRouter)
 
 const InitializeConnction = async ()=>{
   try {

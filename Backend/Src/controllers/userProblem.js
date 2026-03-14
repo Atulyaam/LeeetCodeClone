@@ -88,6 +88,24 @@ const fetchProblembyId = async (req,res)=>{
 
 }
 
+const fetchProblembyIdForAdmin = async (req,res)=>{
+   const {id} = req.params;
+   try {
+      if(!id){
+         return res.status(400).send("Id is Missing");
+      }
+      const getProblem = await Problem.findById(id);
+      if(!getProblem){
+         return res.status(404).send("Problem is Missing")
+      }
+      res.status(200).send(getProblem)
+   } catch (error) {
+      res.status(500).send("Error: "+error)
+      
+   }
+
+}
+
 const fetchAllProblem  =async (req,res)=>{
    //  Since problem can be thousand and lacks which can create a problem so we use Paginatio here and Lazy Loading in Frontend to avoid the freez problem
    try {
@@ -219,10 +237,10 @@ const submittedProblem  =async(req,res)=>{
       const ans = await  ProblemSubmission.find({userId,problemId})
 
       if(ans.length==0){
-         res.status(200).send("No submission is Present")
+         return res.status(200).send([])
       }
 
-      res.status(200).send(ans)
+      return res.status(200).send(ans)
       
    } catch (error) {
       res.status(501).send("Error: "+error)
@@ -231,4 +249,4 @@ const submittedProblem  =async(req,res)=>{
 
 }
 
-module.exports = {createProblem,deleteProblembyId,updateProblem,solvedProblembyUser,fetchAllProblem,fetchProblembyId,submittedProblem}
+module.exports = {createProblem,deleteProblembyId,updateProblem,solvedProblembyUser,fetchAllProblem,fetchProblembyId,fetchProblembyIdForAdmin,submittedProblem}
