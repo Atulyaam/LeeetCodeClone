@@ -142,6 +142,30 @@ function getErrorMessage(error, fallbackMessage) {
   return error?.response?.data?.message || fallbackMessage;
 }
 
+function formatDuration(seconds) {
+  if (!Number.isFinite(seconds) || seconds < 0) {
+    return "0:00";
+  }
+
+  const totalSeconds = Math.round(seconds);
+  const mins = Math.floor(totalSeconds / 60);
+  const secs = totalSeconds % 60;
+  return `${mins}:${secs.toString().padStart(2, "0")}`;
+}
+
+function formatDate(value) {
+  if (!value) {
+    return "-";
+  }
+
+  const nextDate = new Date(value);
+  if (Number.isNaN(nextDate.getTime())) {
+    return "-";
+  }
+
+  return nextDate.toLocaleString();
+}
+
 function FormField({ label, hint, error, children }) {
   return (
     <label className="form-control gap-2">
@@ -573,6 +597,13 @@ export default function AdminPanel() {
   const [updateProblemLoading, setUpdateProblemLoading] = useState(false);
   const [updateFormReady, setUpdateFormReady] = useState(false);
   const [deletePending, setDeletePending] = useState(false);
+  const [editorialVideo, setEditorialVideo] = useState(null);
+  const [editorialLoading, setEditorialLoading] = useState(false);
+  const [videoFile, setVideoFile] = useState(null);
+  const [videoActionLoading, setVideoActionLoading] = useState(false);
+  const [videoActionError, setVideoActionError] = useState("");
+  const [videoActionSuccess, setVideoActionSuccess] = useState("");
+  const [videoInputKey, setVideoInputKey] = useState(0);
 
   const createForm = useForm({
     resolver: zodResolver(problemSchema),
@@ -628,23 +659,55 @@ export default function AdminPanel() {
     }
   }, [updateForm]);
 
+  const loadEditorialVideo = useCallback(async (problemId) => {
+    if (!problemId) {
+      setEditorialVideo(null);
+      return;
+    }
+
+    setEditorialLoading(true);
+    setVideoActionError("");
+
+    try {
+      const response = await axiosClient.get(`/video/problem/${problemId}`);
+      setEditorialVideo(response.data || null);
+    } catch (error) {
+      if (error?.response?.status === 404) {
+        setEditorialVideo(null);
+      } else {
+        setEditorialVideo(null);
+        setVideoActionError(getErrorMessage(error, "Unable to load editorial video"));
+      }
+    } finally {
+      setEditorialLoading(false);
+    }
+  }, []);
+
   useEffect(() => {
     loadProblems();
   }, []);
 
   useEffect(() => {
     if (activeAction !== "update") {
+      setEditorialVideo(null);
+      setVideoFile(null);
+      setVideoActionError("");
+      setVideoActionSuccess("");
       return;
     }
 
     if (!selectedUpdateProblemId) {
       updateForm.reset(createDefaultValues());
       setUpdateFormReady(false);
+      setEditorialVideo(null);
+      setVideoActionError("");
+      setVideoActionSuccess("");
       return;
     }
 
     loadProblemForUpdate(selectedUpdateProblemId);
-  }, [activeAction, selectedUpdateProblemId, loadProblemForUpdate, updateForm]);
+    loadEditorialVideo(selectedUpdateProblemId);
+  }, [activeAction, selectedUpdateProblemId, loadEditorialVideo, loadProblemForUpdate, updateForm]);
 
   const handleCreate = async (formData) => {
     setCreateFeedback({ error: "", success: "" });
@@ -711,6 +774,84 @@ export default function AdminPanel() {
       setDeleteFeedback({ error: getErrorMessage(error, "Unable to delete problem"), success: "" });
     } finally {
       setDeletePending(false);
+    }
+  };
+
+  const handleUploadEditorialVideo = async () => {
+    if (!selectedUpdateProblemId) {
+      setVideoActionError("Select a problem to manage video first.");
+      return;
+    }
+
+    if (!videoFile) {
+      setVideoActionError("Please choose a video file first.");
+      return;
+    }
+
+    setVideoActionLoading(true);
+    setVideoActionError("");
+    setVideoActionSuccess("");
+
+    try {
+      const signatureRes = await axiosClient.post("/video/upload-signature", { problemId: selectedUpdateProblemId });
+      const signatureData = signatureRes.data;
+
+      const formData = new FormData();
+      formData.append("file", videoFile);
+      formData.append("signature", signatureData.signature);
+      formData.append("timestamp", String(signatureData.timestamp));
+      formData.append("public_id", signatureData.public_id);
+      formData.append("api_key", signatureData.api_key);
+
+      const cloudinaryRes = await fetch(signatureData.upload_url, {
+        method: "POST",
+        body: formData,
+      });
+      const cloudinaryData = await cloudinaryRes.json();
+      if (!cloudinaryRes.ok) {
+        throw new Error(cloudinaryData?.error?.message || "Cloudinary upload failed");
+      }
+
+      await axiosClient.post("/video/save", {
+        problemId: selectedUpdateProblemId,
+        cloudinaryPublicId: cloudinaryData.public_id,
+        secureUrl: cloudinaryData.secure_url,
+        duration: cloudinaryData.duration,
+      });
+
+      setVideoActionSuccess("Editorial video uploaded successfully.");
+      setVideoFile(null);
+      setVideoInputKey((prev) => prev + 1);
+      await loadEditorialVideo(selectedUpdateProblemId);
+    } catch (error) {
+      setVideoActionError(getErrorMessage(error, "Unable to upload editorial video"));
+    } finally {
+      setVideoActionLoading(false);
+    }
+  };
+
+  const handleDeleteEditorialVideo = async () => {
+    if (!selectedUpdateProblemId || !editorialVideo) {
+      return;
+    }
+
+    const confirmed = window.confirm("Delete editorial video for this problem?");
+    if (!confirmed) {
+      return;
+    }
+
+    setVideoActionLoading(true);
+    setVideoActionError("");
+    setVideoActionSuccess("");
+
+    try {
+      await axiosClient.delete(`/video/problem/${selectedUpdateProblemId}`);
+      setEditorialVideo(null);
+      setVideoActionSuccess("Editorial video deleted successfully.");
+    } catch (error) {
+      setVideoActionError(getErrorMessage(error, "Unable to delete editorial video"));
+    } finally {
+      setVideoActionLoading(false);
     }
   };
 
@@ -795,25 +936,95 @@ export default function AdminPanel() {
               ) : null}
 
               {!updateProblemLoading && updateFormReady ? (
-                <ProblemEditorForm
-                  mode="update"
-                  form={updateForm}
-                  onSubmit={handleUpdate}
-                  submitLabel="Update Problem"
-                  submitError={updateFeedback.error}
-                  submitSuccess={updateFeedback.success}
-                  headerTitle="Update problem details"
-                  headerDescription="The full problem payload is loaded for editing, including hidden cases and reference solutions."
-                  secondaryAction={
-                    <button
-                      type="button"
-                      className="btn btn-outline h-14 rounded-full px-8"
-                      onClick={() => loadProblemForUpdate(selectedUpdateProblemId)}
-                    >
-                      Reset to saved data
-                    </button>
-                  }
-                />
+                <>
+                  <ProblemEditorForm
+                    mode="update"
+                    form={updateForm}
+                    onSubmit={handleUpdate}
+                    submitLabel="Update Problem"
+                    submitError={updateFeedback.error}
+                    submitSuccess={updateFeedback.success}
+                    headerTitle="Update problem details"
+                    headerDescription="The full problem payload is loaded for editing, including hidden cases and reference solutions."
+                    secondaryAction={
+                      <button
+                        type="button"
+                        className="btn btn-outline h-14 rounded-full px-8"
+                        onClick={() => loadProblemForUpdate(selectedUpdateProblemId)}
+                      >
+                        Reset to saved data
+                      </button>
+                    }
+                  />
+
+                  <SectionCard
+                    title="Editorial video management"
+                    description="Upload or delete the official solution video linked to this problem."
+                  >
+                    <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(280px,360px)]">
+                      <div>
+                        {editorialLoading ? (
+                          <div className="flex min-h-64 items-center justify-center rounded-3xl bg-base-200/70">
+                            <span className="loading loading-spinner loading-lg text-primary" />
+                          </div>
+                        ) : editorialVideo ? (
+                          <div className="space-y-4 rounded-3xl border border-base-300/70 bg-base-100 p-4">
+                            <video
+                              className="max-h-96 w-full rounded-2xl bg-black"
+                              controls
+                              poster={editorialVideo.thumbnailUrl || undefined}
+                              src={editorialVideo.secureUrl}
+                            />
+                            <div className="flex flex-wrap gap-2 text-xs text-base-content/60">
+                              <span className="badge badge-outline">Duration: {formatDuration(editorialVideo.duration)}</span>
+                              <span className="badge badge-outline">Updated: {formatDate(editorialVideo.updatedAt)}</span>
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="rounded-3xl border border-dashed border-base-300 bg-base-200/50 p-6 text-sm text-base-content/65">
+                            No editorial video uploaded for this problem yet.
+                          </div>
+                        )}
+                      </div>
+
+                      <div className="rounded-3xl border border-base-300/70 bg-base-100 p-5">
+                        <h3 className="text-lg font-semibold text-base-content">Video controls</h3>
+                        <p className="mt-1 text-sm text-base-content/65">Choose a video file to upload, or delete the currently linked video.</p>
+
+                        <div className="mt-4 space-y-3">
+                          <input
+                            key={videoInputKey}
+                            type="file"
+                            accept="video/*"
+                            className="file-input file-input-bordered w-full"
+                            onChange={(event) => setVideoFile(event.target.files?.[0] || null)}
+                          />
+
+                          <button
+                            type="button"
+                            className={`btn btn-primary w-full rounded-full ${videoActionLoading ? "loading" : ""}`}
+                            onClick={handleUploadEditorialVideo}
+                            disabled={videoActionLoading}
+                          >
+                            {!videoActionLoading && "Upload Video"}
+                          </button>
+
+                          <button
+                            type="button"
+                            className={`btn btn-outline btn-error w-full rounded-full ${videoActionLoading ? "loading" : ""}`}
+                            onClick={handleDeleteEditorialVideo}
+                            disabled={videoActionLoading || !editorialVideo}
+                          >
+                            {!videoActionLoading && "Delete Current Video"}
+                          </button>
+                        </div>
+
+                        {videoActionError ? <div className="alert alert-error mt-4 rounded-2xl text-sm">{videoActionError}</div> : null}
+                        {videoActionSuccess ? <div className="alert alert-success mt-4 rounded-2xl text-sm">{videoActionSuccess}</div> : null}
+                      </div>
+                    </div>
+                  </SectionCard>
+                </>
               ) : null}
 
               {!updateProblemLoading && !updateFormReady && problems.length > 0 ? (
