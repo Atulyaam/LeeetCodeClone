@@ -47,6 +47,17 @@ const userSchema = new Schema({
       ref:'problem'
     }],
     default:[]
+  },
+  completedMissions: {
+    type: [{
+      type: Schema.Types.ObjectId,
+      ref: 'mission'
+    }],
+    default: []
+  },
+  totalPoints: {
+    type: Number,
+    default: 0
   }
 },{
   timestamps:true

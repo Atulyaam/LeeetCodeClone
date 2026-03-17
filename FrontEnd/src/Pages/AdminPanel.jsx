@@ -42,6 +42,12 @@ const operationCards = [
     title: "Delete Problem",
     description: "Pick an existing problem from the catalogue and remove it with an explicit confirmation.",
   },
+  {
+    value: "create_mission",
+    eyebrow: "04",
+    title: "Create Mission",
+    description: "Group existing problems into a new mission to reward users with points upon completion.",
+  },
 ];
 
 const problemSchema = z.object({
@@ -82,6 +88,13 @@ const problemSchema = z.object({
       })
     )
     .length(3, "All three languages are required"),
+});
+
+const missionSchema = z.object({
+  title: z.string().min(1, "Title is required"),
+  description: z.string().min(1, "Description is required"),
+  points: z.coerce.number().min(1, "Points must be at least 1"),
+  problems: z.array(z.string()).min(1, "At least one problem is required for a mission"),
 });
 
 function createDefaultValues() {
@@ -592,6 +605,7 @@ export default function AdminPanel() {
   const [createFeedback, setCreateFeedback] = useState({ error: "", success: "" });
   const [updateFeedback, setUpdateFeedback] = useState({ error: "", success: "" });
   const [deleteFeedback, setDeleteFeedback] = useState({ error: "", success: "" });
+  const [createMissionFeedback, setCreateMissionFeedback] = useState({ error: "", success: "" });
   const [selectedUpdateProblemId, setSelectedUpdateProblemId] = useState("");
   const [selectedDeleteProblemId, setSelectedDeleteProblemId] = useState("");
   const [updateProblemLoading, setUpdateProblemLoading] = useState(false);
@@ -613,6 +627,11 @@ export default function AdminPanel() {
   const updateForm = useForm({
     resolver: zodResolver(problemSchema),
     defaultValues: createDefaultValues(),
+  });
+
+  const missionForm = useForm({
+    resolver: zodResolver(missionSchema),
+    defaultValues: { title: "", description: "", points: 100, problems: [] },
   });
 
   const loadProblems = async () => {
@@ -719,6 +738,18 @@ export default function AdminPanel() {
       setCreateFeedback({ error: "", success: "Problem created successfully." });
     } catch (error) {
       setCreateFeedback({ error: getErrorMessage(error, "Unable to create problem"), success: "" });
+    }
+  };
+
+  const handleCreateMission = async (formData) => {
+    setCreateMissionFeedback({ error: "", success: "" });
+    try {
+      // The endpoint is /mission/create according to the new backend missionRoutes!
+      await axiosClient.post("/mission/create", formData);
+      missionForm.reset({ title: "", description: "", points: 100, problems: [] });
+      setCreateMissionFeedback({ error: "", success: "Mission created successfully." });
+    } catch (error) {
+      setCreateMissionFeedback({ error: getErrorMessage(error, "Unable to create mission"), success: "" });
     }
   };
 
@@ -1091,6 +1122,72 @@ export default function AdminPanel() {
                 {deleteFeedback.success ? <div className="alert alert-success mt-5 rounded-2xl">{deleteFeedback.success}</div> : null}
               </SectionCard>
             </>
+          ) : null}
+
+          {activeAction === "create_mission" ? (
+            <div className="rounded-4xl border border-base-300/60 bg-base-100/80 p-3 shadow-2xl shadow-base-content/5 backdrop-blur md:p-4">
+              <div className="rounded-3xl bg-base-100 p-4 md:p-6">
+                <div className="mb-6 flex flex-col gap-4 rounded-4xl bg-linear-to-r from-base-200 via-base-100 to-base-200 p-5 md:flex-row md:items-end md:justify-between md:p-6">
+                  <div>
+                    <div className="mb-3 flex flex-wrap gap-2">
+                       <span className="badge badge-secondary">New Mission Workflow</span>
+                    </div>
+                    <h2 className="text-2xl font-bold tracking-tight text-base-content md:text-3xl">Create a New Mission</h2>
+                    <p className="mt-2 text-sm leading-6 text-base-content/65">Bundle existing problems into an overarching goal to reward users with points upon completion.</p>
+                  </div>
+                </div>
+
+                <form onSubmit={missionForm.handleSubmit(handleCreateMission)} className="space-y-6">
+                   <SectionCard title="Mission Details" description="Provide basic information about the mission.">
+                     <div className="grid gap-4 md:grid-cols-[1.5fr_1fr]">
+                        <div className="space-y-4">
+                           <FormField label="Title" error={missionForm.formState.errors.title?.message}>
+                              <input placeholder="e.g., Master Dynamic Programming" className="input input-bordered h-12 w-full rounded-2xl bg-base-100 px-4" {...missionForm.register("title")} />
+                           </FormField>
+                           <FormField label="Description" error={missionForm.formState.errors.description?.message}>
+                              <textarea placeholder="Solve these 5 problems to earn the DP Master badge..." className="textarea textarea-bordered min-h-24 w-full rounded-2xl bg-base-100 px-4 py-3" {...missionForm.register("description")} />
+                           </FormField>
+                        </div>
+                        <div className="space-y-4">
+                           <FormField label="Points Reward" error={missionForm.formState.errors.points?.message}>
+                              <input type="number" className="input input-bordered h-12 w-full rounded-2xl bg-base-100 px-4" {...missionForm.register("points")} />
+                           </FormField>
+                        </div>
+                     </div>
+                   </SectionCard>
+                   
+                   <SectionCard title="Contained Problems" description="Select the problems that must be solved to complete this mission. Hold Ctrl (or Cmd) to select multiple.">
+                     <FormField label="Problems" error={missionForm.formState.errors.problems?.message}>
+                        {catalogueLoading ? (
+                          <div className="flex h-48 items-center justify-center rounded-2xl bg-base-200"><span className="loading loading-spinner text-primary"></span></div>
+                        ) : problems.length === 0 ? (
+                          <div className="alert alert-warning rounded-2xl">No problems available. Please create some problems first.</div>
+                        ) : (
+                          <select multiple className="select select-bordered h-64 w-full rounded-2xl bg-base-100 p-4 font-mono text-sm leading-6" {...missionForm.register("problems")}>
+                             {problems.map((p) => (
+                               <option key={p._id} value={p._id} className="p-2 mb-1 rounded hover:bg-base-200">{p.title} ({p.difficulty})</option>
+                             ))}
+                          </select>
+                        )}
+                     </FormField>
+                   </SectionCard>
+
+                   <div className="sticky bottom-4 z-10 rounded-[1.75rem] border border-base-300/70 bg-base-100/95 p-4 shadow-xl shadow-base-content/10 backdrop-blur">
+                     <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+                       <div className="space-y-3">
+                         {createMissionFeedback.error && <div className="alert alert-error rounded-2xl text-sm">{createMissionFeedback.error}</div>}
+                         {createMissionFeedback.success && <div className="alert alert-success rounded-2xl text-sm">{createMissionFeedback.success}</div>}
+                       </div>
+                       <div className="flex w-full flex-col gap-3 lg:w-auto lg:flex-row lg:items-center">
+                         <button className={`btn btn-secondary h-14 min-w-full rounded-full px-8 text-base lg:min-w-56 ${missionForm.formState.isSubmitting ? "loading" : ""}`} type="submit" disabled={missionForm.formState.isSubmitting}>
+                           {missionForm.formState.isSubmitting ? "Creating..." : "Create Mission"}
+                         </button>
+                       </div>
+                     </div>
+                   </div>
+                </form>
+              </div>
+            </div>
           ) : null}
         </div>
       </div>

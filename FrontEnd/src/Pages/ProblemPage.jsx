@@ -554,34 +554,42 @@ export default function ProblemPage() {
   const renderLeftPanel = () => {
     if (leftTab === "description") {
       return (
-        <div className="space-y-5">
+        <div className="space-y-6">
           <div>
-            <h1 className="text-2xl font-bold text-base-content">{problem.title}</h1>
-            <div className="flex flex-wrap gap-2 mt-2">
-              <span className={`badge ${diffBadge(problem.difficulty)}`}>{problem.difficulty}</span>
-              <span className="badge badge-outline">{problem.tags}</span>
+            <h1 className="text-2xl font-bold text-white mb-3">{problem.title}</h1>
+            <div className="flex flex-wrap gap-2 mb-4">
+              <span className={`px-2.5 py-0.5 text-xs font-bold uppercase tracking-wider rounded-full border ${
+                problem.difficulty === 'easy' ? 'bg-success/10 text-success border-success/20' :
+                problem.difficulty === 'medium' ? 'bg-warning/10 text-warning border-warning/20' :
+                'bg-error/10 text-error border-error/20'
+              }`}>{problem.difficulty}</span>
+              <span className="px-2.5 py-0.5 text-xs font-medium rounded-full bg-base-300 text-gray-300 border border-gray-700">
+                {problem.tags}
+              </span>
             </div>
           </div>
-          <p className="text-sm text-base-content/85 whitespace-pre-wrap leading-relaxed">
-            {problem.description}
-          </p>
+          
+          <div className="prose prose-invert max-w-none text-sm text-gray-300 leading-relaxed font-sans">
+            <p className="whitespace-pre-wrap">{problem.description}</p>
+          </div>
+          
           {problem.visibalTestCases?.length > 0 && (
-            <div className="space-y-3">
-              <h2 className="text-base font-semibold text-base-content border-b border-base-300 pb-2">Examples</h2>
+            <div className="space-y-4 pt-4 border-t border-gray-800">
+              <h2 className="text-base font-semibold text-white tracking-wide uppercase">Examples</h2>
               {problem.visibalTestCases.map((tc, i) => (
-                <div key={i} className="rounded-xl bg-base-200 p-4 space-y-2 text-sm font-mono">
-                  <div>
-                    <span className="not-italic font-semibold text-base-content/60 font-sans">Input: </span>
-                    {tc.input}
+                <div key={i} className="rounded-xl bg-[#161b22] border border-gray-800 p-5 space-y-3 font-mono text-sm shadow-sm">
+                  <div className="flex flex-col gap-1">
+                    <span className="text-xs font-sans font-bold text-gray-500 uppercase tracking-wider">Input</span>
+                    <span className="text-gray-300">{tc.input}</span>
                   </div>
-                  <div>
-                    <span className="not-italic font-semibold text-base-content/60 font-sans">Output: </span>
-                    {tc.output}
+                  <div className="flex flex-col gap-1">
+                    <span className="text-xs font-sans font-bold text-gray-500 uppercase tracking-wider">Output</span>
+                    <span className="text-white font-bold">{tc.output}</span>
                   </div>
                   {tc.explanation && (
-                    <div className="font-sans text-base-content/70">
-                      <span className="font-semibold">Explanation: </span>
-                      {tc.explanation}
+                    <div className="flex flex-col gap-1 pt-2 border-t border-gray-800/50 mt-1">
+                      <span className="text-xs font-sans font-bold text-gray-500 uppercase tracking-wider">Explanation</span>
+                      <span className="text-gray-400 font-sans">{tc.explanation}</span>
                     </div>
                   )}
                 </div>
@@ -594,72 +602,76 @@ export default function ProblemPage() {
 
     if (leftTab === "editorial") {
       return (
-        <div className="space-y-5 text-sm text-base-content/80 leading-6">
+        <div className="space-y-5 text-sm text-gray-300">
           <div>
-            <h2 className="text-xl font-semibold text-base-content">Editorial</h2>
-            <p className="text-base-content/65 mt-1">Watch the official video walkthrough for this problem.</p>
+            <h2 className="text-xl font-bold text-white">Editorial Video</h2>
+            <p className="text-gray-500 mt-1">Watch the official walkthrough for this problem.</p>
           </div>
 
           {editorialLoading ? (
-            <div className="flex items-center justify-center rounded-xl bg-base-200 min-h-56">
-              <span className="loading loading-spinner loading-md" />
+            <div className="flex items-center justify-center rounded-xl bg-[#161b22] border border-gray-800 min-h-[200px]">
+              <span className="loading loading-spinner text-primary loading-md" />
             </div>
           ) : editorialVideo ? (
-            <div className="space-y-3">
-              <div className="rounded-2xl bg-base-200 p-2">
+            <div className="space-y-4">
+              <div className="rounded-2xl bg-black border border-gray-800 p-1 shadow-lg overflow-hidden">
                 <video
-                  className="w-full rounded-xl max-h-105 bg-black"
+                  className="w-full rounded-xl max-h-[400px]"
                   controls
                   poster={editorialVideo.thumbnailUrl || undefined}
                   src={editorialVideo.secureUrl}
                 />
               </div>
-              <div className="flex flex-wrap items-center gap-2 text-xs text-base-content/60">
-                <span className="badge badge-outline">Duration: {fmtDuration(editorialVideo.duration)}</span>
-                <span className="badge badge-outline">Updated: {fmtDate(editorialVideo.updatedAt)}</span>
+              <div className="flex flex-wrap gap-3 text-xs">
+                <span className="px-3 py-1 rounded-full bg-gray-800 text-gray-300 border border-gray-700">Duration: {fmtDuration(editorialVideo.duration)}</span>
+                <span className="px-3 py-1 rounded-full bg-gray-800 text-gray-300 border border-gray-700">Updated: {fmtDate(editorialVideo.updatedAt)}</span>
               </div>
             </div>
           ) : (
-            <div className="rounded-xl border border-dashed border-base-300 bg-base-200/60 p-4 text-base-content/70">
-              No editorial video uploaded yet for this problem.
+            <div className="rounded-xl border border-dashed border-gray-700 bg-[#161b22] p-8 text-center text-gray-500">
+              <svg className="w-12 h-12 mx-auto mb-3 opacity-20" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>
+              No editorial video available yet.
             </div>
           )}
 
-          {editorialError ? <div className="alert alert-error rounded-xl">{editorialError}</div> : null}
+          {editorialError && <div className="alert alert-error rounded-xl shadow-lg">{editorialError}</div>}
 
-          {isAdmin ? (
-            <div className="rounded-2xl border border-base-300 bg-base-100 p-4 space-y-3">
-              <h3 className="font-semibold text-base-content">Admin video controls</h3>
+          {isAdmin && (
+            <div className="rounded-2xl border border-gray-800 bg-[#161b22] p-5 space-y-4 mt-6">
+              <h3 className="font-bold text-white flex items-center gap-2">
+                 <svg className="w-4 h-4 text-warning" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
+                 Admin Controls
+              </h3>
               <input
                 type="file"
                 accept="video/*"
-                className="file-input file-input-bordered w-full"
+                className="file-input file-input-bordered bg-[#0d1117] border-gray-700 w-full text-sm"
                 onChange={(e) => setVideoFile(e.target.files?.[0] || null)}
               />
-              <div className="flex flex-wrap gap-2">
+              <div className="flex gap-3">
                 <button
                   type="button"
-                  className={`btn btn-primary btn-sm ${videoUploading ? "loading" : ""}`}
+                  className={`btn btn-primary btn-sm flex-1 ${videoUploading ? "loading" : ""}`}
                   onClick={handleUploadEditorialVideo}
                   disabled={videoUploading}
                 >
-                  {!videoUploading && "Upload Video"}
+                  {!videoUploading && "Upload New Video"}
                 </button>
-                {editorialVideo ? (
+                {editorialVideo && (
                   <button
                     type="button"
                     className={`btn btn-outline btn-error btn-sm ${videoUploading ? "loading" : ""}`}
                     onClick={handleDeleteEditorialVideo}
                     disabled={videoUploading}
                   >
-                    {!videoUploading && "Delete Current Video"}
+                    {!videoUploading && "Delete"}
                   </button>
-                ) : null}
+                )}
               </div>
-              {videoActionError ? <div className="alert alert-error rounded-xl">{videoActionError}</div> : null}
-              {videoActionSuccess ? <div className="alert alert-success rounded-xl">{videoActionSuccess}</div> : null}
+              {videoActionError && <div className="text-error text-xs">{videoActionError}</div>}
+              {videoActionSuccess && <div className="text-success text-xs">{videoActionSuccess}</div>}
             </div>
-          ) : null}
+          )}
         </div>
       );
     }
@@ -668,9 +680,11 @@ export default function ProblemPage() {
       const starter = problem.startCode?.find((item) => item.language === selectedLang)?.intialCode || "No starter code available.";
       return (
         <div className="space-y-4">
-          <h2 className="text-xl font-semibold text-base-content">Solutions</h2>
-          <p className="text-sm text-base-content/70">Starter template for {selectedLang}.</p>
-          <pre className="rounded-xl bg-base-200 p-4 text-xs overflow-x-auto whitespace-pre-wrap">{starter}</pre>
+          <h2 className="text-xl font-bold text-white">Starter Template</h2>
+          <p className="text-sm text-gray-500">Code scaffold for {selectedLang}.</p>
+          <pre className="rounded-xl bg-[#161b22] border border-gray-800 p-5 text-sm font-mono text-gray-300 overflow-x-auto whitespace-pre-wrap shadow-inner">
+             {starter}
+          </pre>
         </div>
       );
     }
@@ -687,102 +701,76 @@ export default function ProblemPage() {
       );
     }
 
-    
-
     // ── SUBMISSIONS TAB ──────────────────────────────────────────────────────
     return (
       <div className="space-y-4">
-        <h2 className="text-xl font-semibold text-base-content">Submissions</h2>
+        <h2 className="text-xl font-bold text-white border-b border-gray-800 pb-2">Your Submissions</h2>
 
-        {/* Loading */}
         {submissionLoading && (
-          <div className="flex items-center gap-3 py-10 justify-center text-base-content/50 text-sm">
-            <span className="loading loading-spinner loading-sm" />
-            Loading submissions…
+          <div className="flex items-center gap-3 py-10 justify-center text-gray-500 text-sm">
+            <span className="loading loading-spinner loading-sm text-primary" />
+            Fetching history...
           </div>
         )}
 
-        {/* Error */}
         {!submissionLoading && submissionError && (
           <div className="alert alert-error text-sm rounded-xl">{submissionError}</div>
         )}
 
-        {/* Empty state */}
         {!submissionLoading && !submissionError && submissionHistory.length === 0 && (
-          <div className="flex flex-col items-center gap-2 py-14 text-base-content/40">
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-10 w-10 opacity-30" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-3-3v6M4 6h16M4 10h16M4 14h10M4 18h7" />
+          <div className="flex flex-col items-center justify-center p-12 text-center rounded-2xl border border-dashed border-gray-800 bg-[#161b22]/50 mt-4">
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 text-gray-700 mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M9 12h6m-3-3v6M4 6h16M4 10h16M4 14h10M4 18h7" />
             </svg>
-            <p className="text-sm">No submissions yet for this problem.</p>
-            <p className="text-xs opacity-70">Submit your code to see results here.</p>
+            <h3 className="text-white font-semibold mb-1">No submissions yet</h3>
+            <p className="text-sm text-gray-500">Run code and submit solutions to see your history here.</p>
           </div>
         )}
 
-        {/* Submissions table */}
         {!submissionLoading && !submissionError && submissionHistory.length > 0 && (
-          <div className="overflow-x-auto rounded-xl border border-base-300">
-            <table className="table table-sm w-full text-sm">
-              <thead>
-                <tr className="bg-base-200 text-base-content/60 text-xs uppercase tracking-wide">
-                  <th className="pl-4">Status</th>
-                  <th>Language</th>
-                  <th>Runtime</th>
-                  <th>Memory</th>
-                  <th>Testcases</th>
-                  <th>Submitted At</th>
-                  <th className="text-center">Action</th>
+          <div className="overflow-x-auto rounded-xl border border-gray-800 shadow-sm mt-4">
+            <table className="w-full text-sm text-left">
+              <thead className="text-xs uppercase bg-[#161b22] text-gray-500 border-b border-gray-800">
+                <tr>
+                  <th className="px-4 py-3 font-semibold">Status</th>
+                  <th className="px-4 py-3 font-semibold">Language</th>
+                  <th className="px-4 py-3 font-semibold">Runtime</th>
+                  <th className="px-4 py-3 font-semibold">Memory</th>
+                  <th className="px-4 py-3 font-semibold text-right">Action</th>
                 </tr>
               </thead>
-              <tbody>
+              <tbody className="divide-y divide-gray-800/50">
                 {[...submissionHistory].reverse().map((item, idx) => {
                   const cfg = statusConfig[item.status] ?? statusConfig.pending;
                   return (
-                    <tr
-                      key={item._id ?? idx}
-                      className="hover:bg-base-200/50 transition-colors border-t border-base-300/50"
-                    >
-                      {/* Status */}
-                      <td className="pl-4 py-3">
-                        <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold border ${cfg.cls}`}>
-                          <span
-                            className={`w-1.5 h-1.5 rounded-full ${
-                              item.status === "accepted" ? "bg-emerald-400"
-                              : item.status === "error"  ? "bg-orange-400"
-                              : item.status === "pending"? "bg-base-content/30"
-                              : "bg-red-400"
-                            }`}
-                          />
-                          {cfg.label}
-                        </span>
+                    <tr key={item._id ?? idx} className="hover:bg-white/[0.02] transition-colors group">
+                      <td className="px-4 py-3 whitespace-nowrap">
+                        <div className="flex flex-col">
+                           <span className={`inline-flex items-center gap-1.5 font-bold ${
+                             item.status === 'accepted' ? 'text-success' : 'text-error'
+                           }`}>
+                             {cfg.label}
+                           </span>
+                           <span className="text-[10px] text-gray-600 font-medium mt-0.5">{fmtDate(item.createdAt)}</span>
+                        </div>
                       </td>
-                      {/* Language */}
-                      <td className="text-base-content/70 font-mono text-xs py-3">{item.language}</td>
-                      {/* Runtime */}
-                      <td className="text-base-content/70 py-3">{fmtRuntime(item.runtime)}</td>
-                      {/* Memory */}
-                      <td className="text-base-content/70 py-3">{fmtMemory(item.memory)}</td>
-                      {/* Testcases */}
-                      <td className="py-3">
-                        <span className="text-base-content/70">
-                          {item.testCasesPassed}
-                          <span className="text-base-content/30"> / </span>
-                          {item.testCasesTotal}
-                        </span>
+                      <td className="px-4 py-3">
+                         <span className="px-2 py-1 bg-gray-800 rounded-md text-xs font-mono text-gray-300">
+                            {item.language}
+                         </span>
                       </td>
-                      {/* Date */}
-                      <td className="text-base-content/50 text-xs py-3 whitespace-nowrap">
-                        {fmtDate(item.createdAt)}
+                      <td className="px-4 py-3 text-gray-400">
+                         {item.status === 'accepted' ? fmtRuntime(item.runtime) : '-'}
                       </td>
-                      {/* Action */}
-                      <td className="text-center py-3">
+                      <td className="px-4 py-3 text-gray-400">
+                         {item.status === 'accepted' ? fmtMemory(item.memory) : '-'}
+                      </td>
+                      <td className="px-4 py-3 text-right">
                         <button
                           onClick={() => setViewCodeItem(item)}
-                          className="btn btn-xs btn-ghost border border-base-300 hover:border-primary hover:text-primary gap-1 rounded-lg"
+                          className="text-primary hover:text-white bg-primary/10 hover:bg-primary px-3 py-1.5 rounded-lg text-xs font-semibold transition-all opacity-0 group-hover:opacity-100 focus:opacity-100"
                         >
-                          <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
-                          </svg>
-                          View Code
+                          View
                         </button>
                       </td>
                     </tr>
@@ -798,124 +786,139 @@ export default function ProblemPage() {
 
   // ─── RIGHT PANEL ─────────────────────────────────────────────────────────────
   const renderRightPanel = () => {
-    if (rightTab === "code") {
-      return (
-        <>
-          <div className="shrink-0 flex items-center gap-3 bg-base-100 rounded-2xl shadow px-4 py-2">
-            <span className="text-xs font-semibold text-base-content/50 uppercase tracking-wider">Language</span>
-            <div className="flex gap-1">
-              {LANGUAGES.map((l) => (
-                <button
-                  key={l.value}
-                  onClick={() => handleLangChange(l.value)}
-                  className={`btn btn-xs rounded-full ${selectedLang === l.value ? "btn-primary" : "btn-ghost"}`}
-                >
-                  {l.label}
-                </button>
-              ))}
-            </div>
-          </div>
-          <div className="flex-1 min-h-0 rounded-2xl overflow-hidden shadow">
-            <CodeEditor language={monacoLang} value={code} onChange={setCode} height="100%" />
-          </div>
-        </>
-      );
-    }
-
+    // Note: The 'code' view has been relocated to top pane statically for modern IDE feel.
     if (rightTab === "testcase") {
       return (
-        <div className="h-full overflow-y-auto rounded-2xl bg-base-100 shadow p-4 space-y-3">
-          <div className="flex items-center justify-between">
-            <h3 className="text-base font-semibold">Visible Testcases</h3>
-            <button
-              className={`btn btn-sm btn-outline ${running ? "loading" : ""}`}
-              onClick={handleRun}
-              disabled={running || submitting}
-            >
-              {!running && "Run On Testcases"}
-            </button>
+        <div className="h-full space-y-4 p-4">
+          <div className="flex items-center justify-between border-b border-gray-800 pb-2">
+            <h3 className="text-sm font-bold text-white flex items-center gap-2">
+               <svg className="w-4 h-4 text-info" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" /></svg>
+               Visible Testcases
+            </h3>
           </div>
-          {problem.visibalTestCases?.map((tc, idx) => (
-            <div key={idx} className="rounded-xl border border-base-300 p-3 text-sm space-y-2">
-              <div><span className="font-semibold">Input:</span> {tc.input}</div>
-              <div><span className="font-semibold">Output:</span> {tc.output}</div>
-              {tc.explanation && <div><span className="font-semibold">Explanation:</span> {tc.explanation}</div>}
-            </div>
-          ))}
+          <div className="flex gap-2 overflow-x-auto pb-2 no-scrollbar">
+            {problem.visibalTestCases?.map((tc, idx) => (
+              <div key={idx} className="min-w-[280px] rounded-xl border border-gray-800 bg-[#161b22] px-4 py-3 text-sm flex flex-col gap-2 relative group overflow-hidden shadow-sm">
+                <div className="absolute top-0 right-0 bg-gray-800 text-gray-400 px-2 py-0.5 rounded-bl-lg text-[10px] font-bold">CASE {idx + 1}</div>
+                <div className="mt-2"><span className="text-xs font-bold text-gray-500 uppercase">Input:</span> <pre className="font-mono text-gray-300 text-xs mt-1 overflow-x-auto bg-[#0d1117] p-2 rounded">{tc.input}</pre></div>
+                <div><span className="text-xs font-bold text-gray-500 uppercase">Output:</span> <pre className="font-mono text-white text-xs mt-1 overflow-x-auto bg-[#0d1117] p-2 rounded">{tc.output}</pre></div>
+              </div>
+            ))}
+          </div>
         </div>
       );
     }
 
     return (
-      <div className="h-full overflow-y-auto rounded-2xl bg-base-100 shadow p-4 space-y-3">
+      <div className="h-full space-y-4 p-4">
+        <h3 className="text-sm font-bold text-white border-b border-gray-800 pb-2 flex items-center gap-2">
+            <svg className="w-4 h-4 text-success" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" /></svg>
+            Terminal Output
+        </h3>
+
         {actionError && (
-          <div className="alert alert-error rounded-xl text-sm">{actionError}</div>
+          <div className="alert alert-error rounded-xl text-sm shadow-sm">{actionError}</div>
         )}
 
         {runResult && (
-          <div className="space-y-2">
-            <h3 className="font-semibold text-base-content text-sm">Run Results</h3>
+          <div className="space-y-3">
             {Array.isArray(runResult)
-              ? runResult.map((r, i) => (
-                  <div
-                    key={i}
-                    className={`rounded-xl p-3 text-sm border ${
-                      r.status_id === 3
-                        ? "bg-success/10 border-success/30 text-success"
-                        : "bg-error/10 border-error/30 text-error"
-                    }`}
-                  >
-                    <div className="flex items-center justify-between">
-                      <span className="font-semibold">
-                        Test {i + 1}: {r.status?.description ?? (r.status_id === 3 ? "Accepted" : "Failed")}
-                      </span>
-                      {r.time && <span className="text-xs opacity-60">{r.time}s</span>}
+              ? runResult.map((r, i) => {
+                  const isAccepted = r.status_id === 3;
+                  return (
+                    <div
+                      key={i}
+                      className={`rounded-xl p-4 text-sm border shadow-sm ${
+                        isAccepted
+                          ? "bg-success/5 border-success/30 text-success"
+                          : "bg-error/5 border-error/30 text-error"
+                      }`}
+                    >
+                      <div className="flex items-center justify-between mb-2 pb-2 border-b border-current/10">
+                        <span className="font-bold tracking-wide">
+                          Test Case {i + 1}: {r.status?.description ?? (isAccepted ? "Accepted" : "Failed")}
+                        </span>
+                        {r.time && <span className="text-xs font-mono bg-current/10 px-2 py-0.5 rounded-md">{r.time}s</span>}
+                      </div>
+                      
+                      {r.stdout && (
+                         <div className="mt-2 text-xs">
+                           <span className="font-semibold text-gray-500 uppercase">Stdout:</span>
+                           <pre className="font-mono text-gray-300 bg-[#06080a] p-2 mt-1 rounded overflow-x-auto border border-gray-800">{r.stdout}</pre>
+                         </div>
+                      )}
+                      
+                      {(r.stderr || r.compile_output) && (
+                        <div className="mt-2 text-xs">
+                           <span className="font-semibold text-error text-[10px] uppercase">Error Output:</span>
+                           <pre className="font-mono text-error/80 bg-error/10 p-2 mt-1 rounded overflow-x-auto border border-error/20 whitespace-pre-wrap">
+                             {r.stderr || r.compile_output}
+                           </pre>
+                        </div>
+                      )}
                     </div>
-                    {r.stdout && <pre className="mt-1 text-xs opacity-75 whitespace-pre-wrap">{r.stdout}</pre>}
-                    {(r.stderr || r.compile_output) && (
-                      <pre className="mt-1 text-xs opacity-75 whitespace-pre-wrap">
-                        {r.stderr || r.compile_output}
-                      </pre>
-                    )}
-                  </div>
-                ))
-              : <pre className="text-xs text-base-content/70">{JSON.stringify(runResult, null, 2)}</pre>
+                  );
+                })
+              : <pre className="text-xs text-gray-500 font-mono bg-[#161b22] border border-gray-800 p-4 rounded-xl shadow-sm">{JSON.stringify(runResult, null, 2)}</pre>
             }
           </div>
         )}
 
         {submitResult && (
           <div
-            className={`rounded-xl p-4 text-sm border ${
+            className={`rounded-xl p-5 text-sm border shadow-md relative overflow-hidden ${
               submitResult.status === "accepted"
-                ? "bg-success/10 border-success/30"
-                : "bg-error/10 border-error/30"
+                ? "bg-success/10 border-success/40"
+                : "bg-error/10 border-error/40"
             }`}
           >
-            <div className="flex flex-wrap gap-4 items-center">
-              <span className={`text-base font-bold ${submitResult.status === "accepted" ? "text-success" : "text-error"}`}>
-                {submitResult.status === "accepted" ? "Accepted"
-                  : submitResult.status === "wrong"  ? "Wrong Answer"
-                  : "Error"}
-              </span>
-              <span className="text-base-content/60">
-                {submitResult.testCasesPassed}/{submitResult.testCasesTotal} test cases passed
-              </span>
-              {submitResult.runtime > 0 && (
-                <span className="text-xs text-base-content/50">{submitResult.runtime.toFixed(3)}s</span>
-              )}
-              {submitResult.memory > 0 && (
-                <span className="text-xs text-base-content/50">{submitResult.memory} KB</span>
-              )}
+            {submitResult.status === "accepted" && <div className="absolute top-0 left-0 w-2 h-full bg-success"></div>}
+            {submitResult.status !== "accepted" && <div className="absolute top-0 left-0 w-2 h-full bg-error"></div>}
+            
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+               <div>
+                  <h3 className={`text-xl font-extrabold tracking-tight ${submitResult.status === "accepted" ? "text-success" : "text-error"}`}>
+                    {submitResult.status === "accepted" ? "Accepted!"
+                      : submitResult.status === "wrong"  ? "Wrong Answer"
+                      : "Execution Error"}
+                  </h3>
+                  <p className="text-gray-400 font-medium mt-1">
+                    <span className="text-white font-bold">{submitResult.testCasesPassed}</span> out of <span className="text-white font-bold">{submitResult.testCasesTotal}</span> testcases passed
+                  </p>
+               </div>
+               
+               <div className="flex gap-4">
+                 {submitResult.runtime > 0 && (
+                   <div className="flex flex-col bg-[#050505]/50 px-3 py-2 rounded-lg border border-gray-800">
+                      <span className="text-[10px] uppercase font-bold tracking-wider text-gray-500">Runtime</span>
+                      <span className="text-white font-mono">{submitResult.runtime.toFixed(3)}s</span>
+                   </div>
+                 )}
+                 {submitResult.memory > 0 && (
+                   <div className="flex flex-col bg-[#050505]/50 px-3 py-2 rounded-lg border border-gray-800">
+                      <span className="text-[10px] uppercase font-bold tracking-wider text-gray-500">Memory</span>
+                      <span className="text-white font-mono">{submitResult.memory} KB</span>
+                   </div>
+                 )}
+               </div>
             </div>
+            
             {submitResult.errorMessage && (
-              <pre className="mt-2 text-xs text-error/80 whitespace-pre-wrap">{submitResult.errorMessage}</pre>
+              <div className="mt-4 pt-4 border-t border-error/20">
+                 <span className="text-[10px] uppercase font-bold tracking-wider text-error">Compiler Message</span>
+                 <pre className="mt-2 p-3 bg-error/10 rounded-lg text-xs font-mono text-error/90 whitespace-pre-wrap border border-error/20">
+                    {submitResult.errorMessage}
+                 </pre>
+              </div>
             )}
           </div>
         )}
 
         {!actionError && !runResult && !submitResult && (
-          <div className="text-sm text-base-content/70">Run or submit your code to see results here.</div>
+          <div className="flex flex-col items-center justify-center p-8 text-center rounded-2xl border border-dashed border-gray-800 bg-[#161b22]/50 mt-4">
+             <svg className="w-10 h-10 text-gray-700 mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+             <p className="text-gray-400 font-medium text-sm">Run your code to view console output here.</p>
+          </div>
         )}
       </div>
     );
@@ -939,27 +942,26 @@ export default function ProblemPage() {
 
   // ─── RENDER ──────────────────────────────────────────────────────────────────
   return (
-    <div className="h-screen flex flex-col bg-base-200 overflow-hidden">
-
+    <div className="h-screen flex flex-col bg-[#0d1117] text-gray-300 overflow-hidden font-sans">
       {/* ── View Code Modal ── */}
       {viewCodeItem && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4"
           onClick={() => setViewCodeItem(null)}
         >
           <div
-            className="bg-base-100 rounded-2xl shadow-2xl w-full max-w-3xl max-h-[85vh] flex flex-col overflow-hidden"
+            className="glass-panel rounded-2xl shadow-2xl w-full max-w-3xl max-h-[85vh] flex flex-col overflow-hidden border border-gray-700"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Header */}
-            <div className="flex items-center justify-between px-5 py-4 border-b border-base-300">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-gray-800 bg-[#161b22]">
               <div className="flex items-center gap-3">
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
                 </svg>
                 <div>
-                  <p className="font-semibold text-base-content text-sm">Submitted Code</p>
-                  <p className="text-xs text-base-content/50">
+                  <p className="font-semibold text-white text-sm">Submitted Code</p>
+                  <p className="text-xs text-gray-400 mt-0.5">
                     {viewCodeItem.language}&nbsp;·&nbsp;{fmtDate(viewCodeItem.createdAt)}
                   </p>
                 </div>
@@ -968,25 +970,25 @@ export default function ProblemPage() {
                 {(() => {
                   const cfg = statusConfig[viewCodeItem.status] ?? statusConfig.pending;
                   return (
-                    <span className={`px-2.5 py-0.5 rounded-full text-xs font-semibold border ${cfg.cls}`}>
+                    <span className={`px-3 py-1 rounded-full text-xs font-semibold border ${cfg.cls}`}>
                       {cfg.label}
                     </span>
                   );
                 })()}
-                <button onClick={() => setViewCodeItem(null)} className="btn btn-sm btn-ghost btn-circle">✕</button>
+                <button onClick={() => setViewCodeItem(null)} className="btn btn-sm btn-ghost btn-circle text-gray-400 hover:text-white">✕</button>
               </div>
             </div>
 
             {/* Stats row */}
-            <div className="flex flex-wrap gap-6 px-5 py-3 bg-base-200/60 border-b border-base-300 text-xs text-base-content/60">
-              <span>⚡ Runtime: <strong className="text-base-content/80">{fmtRuntime(viewCodeItem.runtime)}</strong></span>
-              <span>🧠 Memory: <strong className="text-base-content/80">{fmtMemory(viewCodeItem.memory)}</strong></span>
-              <span>✅ Testcases: <strong className="text-base-content/80">{viewCodeItem.testCasesPassed} / {viewCodeItem.testCasesTotal}</strong></span>
+            <div className="flex flex-wrap gap-8 px-6 py-3 bg-[#0d1117] border-b border-gray-800 text-xs text-gray-400">
+              <span className="flex items-center gap-1.5"><svg className="w-4 h-4 text-warning" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" /></svg> Runtime: <strong className="text-white">{fmtRuntime(viewCodeItem.runtime)}</strong></span>
+              <span className="flex items-center gap-1.5"><svg className="w-4 h-4 text-info" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z" /></svg> Memory: <strong className="text-white">{fmtMemory(viewCodeItem.memory)}</strong></span>
+              <span className="flex items-center gap-1.5"><svg className="w-4 h-4 text-success" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4V5a2 2 0 012-2h4a2 2 0 012 2v14a2 2 0 01-2 2h-4a2 2 0 01-2-2v-4m-12 5H5a2 2 0 01-2-2V7a2 2 0 012-2h4" /></svg> Testcases: <strong className="text-white">{viewCodeItem.testCasesPassed} / {viewCodeItem.testCasesTotal}</strong></span>
             </div>
 
             {/* Code */}
-            <div className="flex-1 overflow-y-auto p-5">
-              <pre className="text-xs font-mono text-base-content/85 whitespace-pre-wrap leading-relaxed bg-base-200 rounded-xl p-4 overflow-x-auto">
+            <div className="flex-1 overflow-y-auto p-0 bg-[#0d1117]">
+              <pre className="text-sm font-mono text-gray-300 p-6 overflow-x-auto m-0">
                 {viewCodeItem.code}
               </pre>
             </div>
@@ -994,64 +996,138 @@ export default function ProblemPage() {
         </div>
       )}
 
-      {/* Navbar */}
-      <nav className="navbar bg-base-100 shadow px-4 shrink-0 z-10">
-        <div className="flex-1 gap-3 min-w-0">
-          <NavLink to="/" className="btn btn-ghost text-xl shrink-0">DupliCode</NavLink>
-          <span className="text-base-content/40 hidden sm:inline">/</span>
-          <span className="font-semibold text-sm hidden sm:inline truncate">{problem.title}</span>
+      {/* Modern Navbar */}
+      <nav className="glass-panel border-b border-gray-800 flex items-center justify-between px-4 py-2 shrink-0 z-10 sticky top-0">
+        <div className="flex items-center gap-4 min-w-0">
+          <NavLink to="/" className="text-lg font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent hover:opacity-80 transition-opacity flex-shrink-0">DupliCode</NavLink>
+          <div className="h-5 w-px bg-gray-700 hidden sm:block"></div>
+          <div className="flex items-center gap-3 min-w-0">
+            <span className="font-semibold text-sm text-white truncate hidden sm:block">{problem.title}</span>
+            <span className={`px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider rounded-full border ${
+              problem.difficulty === 'easy' ? 'bg-success/10 text-success border-success/20' :
+              problem.difficulty === 'medium' ? 'bg-warning/10 text-warning border-warning/20' :
+              'bg-error/10 text-error border-error/20'
+            }`}>{problem.difficulty}</span>
+          </div>
         </div>
-        <div className="flex-none flex items-center gap-2">
-          <span className={`badge ${diffBadge(problem.difficulty)}`}>{problem.difficulty}</span>
+
+        <div className="flex items-center gap-3">
           <button
-            className={`btn btn-ghost btn-sm rounded-full gap-1 ${running ? "loading" : ""}`}
+            className={`btn btn-sm bg-base-300 hover:bg-base-200 text-white border-gray-700 hover:border-gray-500 rounded-lg px-4 gap-2 transition-all ${running ? "loading" : ""}`}
             onClick={handleRun}
             disabled={running || submitting}
           >
             {!running && (
               <>
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 24 24" fill="currentColor">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-success" viewBox="0 0 24 24" fill="currentColor">
                   <path d="M8 5v14l11-7z" />
                 </svg>
-                Run
+                Run Code
               </>
             )}
           </button>
           <button
-            className={`btn btn-primary btn-sm rounded-full ${submitting ? "loading" : ""}`}
+            className={`btn btn-sm btn-primary rounded-lg px-6 shadow-lg shadow-primary/20 hover:shadow-primary/40 transition-all ${submitting ? "loading" : ""}`}
             onClick={handleSubmit}
             disabled={running || submitting}
           >
             {!submitting && "Submit"}
           </button>
+          
+          <div className="h-6 w-px bg-gray-700 mx-1"></div>
+          <div className="avatar placeholder cursor-pointer hover:opacity-80 transition-opacity">
+            <div className="bg-primary/20 text-primary w-8 h-8 rounded-full border border-primary/30">
+              <span className="text-xs font-bold">{user?.firstName?.charAt(0).toUpperCase() || 'U'}</span>
+            </div>
+          </div>
         </div>
       </nav>
 
-      {/* Tab bar */}
-      <div className="bg-base-100 border-b border-base-300 px-3 py-2 flex flex-wrap items-center justify-between gap-3">
-        <div className="tabs tabs-boxed bg-base-200">
-          <button className={`tab ${leftTab === "description" ? "tab-active" : ""}`} onClick={() => setLeftTab("description")}>Description</button>
-          <button className={`tab ${leftTab === "editorial"   ? "tab-active" : ""}`} onClick={() => setLeftTab("editorial")}>Editorial</button>
-          <button className={`tab ${leftTab === "solutions"   ? "tab-active" : ""}`} onClick={() => setLeftTab("solutions")}>Solutions</button>
-          <button className={`tab ${leftTab === "ai"          ? "tab-active" : ""}`} onClick={() => setLeftTab("ai")}>AI Chat</button>
-          <button className={`tab ${leftTab === "submissions" ? "tab-active" : ""}`} onClick={() => setLeftTab("submissions")}>Submissions</button>
+      {/* Main Workspace Split Pane */}
+      <div className="flex flex-col lg:flex-row flex-1 overflow-hidden p-2 gap-2 bg-[#050505]">
+        
+        {/* Left Panel - Description/Tabs */}
+        <div className="w-full lg:w-[45%] flex flex-col glass-panel rounded-xl overflow-hidden border border-gray-800 shadow-sm">
+          {/* Left Panel Tabs */}
+          <div className="flex items-center gap-1 bg-[#161b22] px-2 py-1 border-b border-gray-800 overflow-x-auto no-scrollbar">
+            {[{id: 'description', label: 'Description', icon: 'M4 6h16M4 12h16M4 18h7'},
+              {id: 'editorial', label: 'Editorial', icon: 'M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z'},
+              {id: 'solutions', label: 'Solutions', icon: 'M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z'},
+              {id: 'submissions', label: 'Submissions', icon: 'M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z'},
+              {id: 'ai', label: 'AI Chat', icon: 'M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z'}
+            ].map(tab => (
+              <button 
+                key={tab.id}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition-colors ${
+                  leftTab === tab.id 
+                    ? "bg-gray-800 text-white shadow-sm" 
+                    : "text-gray-400 hover:text-gray-200 hover:bg-gray-800/50"
+                }`} 
+                onClick={() => setLeftTab(tab.id)}
+              >
+                <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={tab.icon} /></svg>
+                {tab.label}
+              </button>
+            ))}
+          </div>
+          
+          {/* Left Panel Content */}
+          <div className="flex-1 overflow-y-auto p-5 bg-[#0d1117] custom-scrollbar">
+            {renderLeftPanel()}
+          </div>
         </div>
-        <div className="tabs tabs-boxed bg-base-200">
-          <button className={`tab ${rightTab === "code"     ? "tab-active" : ""}`} onClick={() => setRightTab("code")}>Code</button>
-          <button className={`tab ${rightTab === "testcase" ? "tab-active" : ""}`} onClick={() => setRightTab("testcase")}>Testcase</button>
-          <button className={`tab ${rightTab === "result"   ? "tab-active" : ""}`} onClick={() => setRightTab("result")}>Result</button>
-        </div>
-      </div>
 
-      {/* Split pane */}
-      <div className="flex flex-col lg:flex-row flex-1 overflow-hidden gap-2 p-2 lg:p-3">
-        {/* Left panel */}
-        <div className="w-full lg:w-[42%] overflow-y-auto rounded-2xl bg-base-100 shadow p-5">
-          {renderLeftPanel()}
-        </div>
-        {/* Right panel */}
+        {/* Right Panel - Editor/Terminal */}
         <div className="flex-1 flex flex-col gap-2 min-h-0">
-          {renderRightPanel()}
+          
+          {/* Editor Section */}
+          <div className="flex-1 flex flex-col glass-panel rounded-xl overflow-hidden border border-gray-800 shadow-sm relative">
+            <div className="flex justify-between items-center bg-[#161b22] px-4 py-1.5 border-b border-gray-800">
+               <div className="flex items-center gap-2">
+                 <svg className="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" /></svg>
+                 <span className="text-xs font-semibold text-gray-400">Code Editor</span>
+               </div>
+               
+               <select 
+                  className="select select-xs bg-[#0d1117] border-gray-700 text-gray-300 hover:border-gray-500 focus:border-primary rounded-lg pr-8"
+                  value={selectedLang}
+                  onChange={(e) => handleLangChange(e.target.value)}
+                >
+                  {LANGUAGES.map(l => (
+                    <option key={l.value} value={l.value}>{l.label}</option>
+                  ))}
+               </select>
+            </div>
+            <div className="flex-1 overflow-hidden bg-[#0d1117]">
+              <CodeEditor language={monacoLang} value={code} onChange={setCode} height="100%" />
+            </div>
+          </div>
+
+          {/* Testcase/Result Terminal Section */}
+          <div className="h-[30%] min-h-[200px] flex flex-col glass-panel rounded-xl overflow-hidden border border-gray-800 shadow-sm">
+            <div className="flex items-center gap-1 bg-[#161b22] px-2 py-1 border-b border-gray-800">
+               {[{id: 'testcase', label: 'Testcases', icon: 'M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2'},
+                 {id: 'result', label: 'Test Result', icon: 'M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z'}
+               ].map(tab => (
+                 <button 
+                  key={tab.id}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-semibold tracking-wide transition-colors ${
+                    rightTab === tab.id 
+                      ? "text-primary bg-primary/10" 
+                      : "text-gray-500 hover:text-gray-300 hover:bg-gray-800/50"
+                  }`} 
+                  onClick={() => setRightTab(tab.id)}
+                 >
+                   <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={tab.icon} /></svg>
+                   {tab.label}
+                 </button>
+               ))}
+            </div>
+            <div className="flex-1 overflow-y-auto p-0 bg-[#0d1117] custom-scrollbar">
+              {renderRightPanel()}
+            </div>
+          </div>
+
         </div>
       </div>
     </div>

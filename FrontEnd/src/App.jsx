@@ -7,6 +7,7 @@ import { useEffect } from "react"
 import { checkAuth } from "./authSlice"
 import AdminPanel from "./Pages/AdminPanel"
 import ProblemPage from "./Pages/ProblemPage"
+import MissionsPage from "./Pages/MissionsPage"
 export default function App(){
   // isAuthenticated ka code
   const dispatch = useDispatch();
@@ -29,6 +30,9 @@ export default function App(){
     <>
     <Routes>
       <Route path="/" element={isAuthenticated ?<HomePage></HomePage>:<Navigate to="/login"></Navigate>}>
+      </Route>
+
+      <Route path="/missions" element={isAuthenticated ?<MissionsPage></MissionsPage>:<Navigate to="/login"></Navigate>}>
       </Route>
 
 

@@ -24,8 +24,7 @@ authRouter.post("/admin/register",adminMiddleware,adminRegister);
 authRouter.delete("/deleteProfile",userMiddleware,deleteProfile)
 
 
-// this automatically get login user if he/she visit page and already login previsiouly
-// it is store forr registerd user
+
 
 authRouter.get('/check',userMiddleware,(req,res)=>{
    const reply = {
