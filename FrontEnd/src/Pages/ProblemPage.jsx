@@ -1013,7 +1013,7 @@ export default function ProblemPage() {
 
         <div className="flex items-center gap-3">
           <button
-            className={`btn btn-sm bg-base-300 hover:bg-base-200 text-white border-gray-700 hover:border-gray-500 rounded-lg px-4 gap-2 transition-all ${running ? "loading" : ""}`}
+            className={`btn btn-sm bg-green-500 hover:bg-base-200 text-white border-gray-700 hover:border-gray-500 rounded-lg px-4 gap-2 transition-all ${running ? "loading" : ""}`}
             onClick={handleRun}
             disabled={running || submitting}
           >

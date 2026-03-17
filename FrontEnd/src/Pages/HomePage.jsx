@@ -233,7 +233,7 @@ function HomePage(){
                            <span className={`px-3 py-1 text-xs font-semibold rounded-full border ${getDifficultyBadgeColor(problem.difficulty)}`}>
                               {problem.difficulty}
                            </span>
-                           <span className="px-3 py-1 text-xs font-medium rounded-full bg-base-300 text-gray-300 border border-gray-700">
+                           <span className="px-3 py-1 text-xs font-medium rounded-full bg-cyan-500/10 text-cyan-400 border border-cyan-500/20">
                               {problem.tags}
                            </span>
                            
